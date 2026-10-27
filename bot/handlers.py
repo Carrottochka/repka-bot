@@ -23,6 +23,7 @@ from bot.config import RUSTORE_URL
 from bot.guide import SECTIONS, all_lessons, lesson_by_id, section_by_id
 from bot.lunar import for_date
 from bot.media_clips import clip_destination, clip_path
+from bot.visitors import RememberVisitor, allow_stats, stats_text
 from bot.texts import (
     ABOUT,
     DOWNLOAD,
@@ -41,6 +42,8 @@ from bot.texts import (
 )
 
 router = Router()
+router.message.middleware(RememberVisitor())
+router.callback_query.middleware(RememberVisitor())
 
 _MENU_TEXTS = {MENU_LUNAR, MENU_NEIGHBORS, MENU_GUIDE, MENU_ABOUT, MENU_DOWNLOAD}
 
@@ -120,6 +123,15 @@ async def about(message: Message, state: FSMContext) -> None:
 async def guide_home(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(GUIDE_INTRO, reply_markup=_sections_keyboard())
+
+
+@router.message(Command("stats"))
+async def stats(message: Message) -> None:
+    user = message.from_user
+    if user is None or not allow_stats(user.id):
+        await message.answer("Эту сводку видит автор бота.")
+        return
+    await message.answer(stats_text())
 
 
 @router.message(Command("cancel"))
