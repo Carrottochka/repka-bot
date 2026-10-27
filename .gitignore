@@ -1,0 +1,12 @@
+.venv/
+venv/
+__pycache__/
+.vs/
+*.py[cod]
+.env
+bot.log
+.pytest_cache/
+data/
+
+media/guide/*
+!media/guide/.gitkeep
